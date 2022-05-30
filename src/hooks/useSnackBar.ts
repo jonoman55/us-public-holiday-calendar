@@ -7,7 +7,7 @@ export const useSnackBar = () => {
     const alert = useCallback((message: string, type: VariantType) => {
         enqueueSnackbar(message, {
             variant: type
-        })
+        });
     }, [enqueueSnackbar]);
 
     return alert;

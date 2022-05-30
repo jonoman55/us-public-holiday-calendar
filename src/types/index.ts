@@ -4,11 +4,19 @@ export type ChildProps = {
     children: ReactNode;
 };
 
-export type PublicHoliday = {
-    name: string;
-    localName: string;
-    date: Date | string;
-    type: string;
+export type Holiday = {
+    counties: string[] | null;
+    countryCode: string | null;
+    date: string | number | Date;
+    fixed: boolean | null;
+    global: boolean | null;
+    launchYear?: number | null;
+    localName: string | null;
+    name: string | null;
+    type: string | null;
+}
+
+export interface HolidayResponse extends Holiday {
     day: number;
 }
 
@@ -17,6 +25,6 @@ export type ErrorName = {
 }
 
 export type QueryParams = {
-    year: string,
-    date: Date 
+    year: string;
+    country: string; 
 }

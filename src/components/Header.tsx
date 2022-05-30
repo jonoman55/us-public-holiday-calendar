@@ -6,6 +6,7 @@ import { toggleTheme } from "../reducers/themeSlice";
 import calendar from "../images/calendar.png";
 
 // TODO : Convert Toolbar to styled component
+// TODO : Add FlexText to shrink the text size depending on screen size
 const Header = () => {
     const dispatch = useAppDispatch();
     const { darkTheme } = useAppSelector((state) => state.theme);

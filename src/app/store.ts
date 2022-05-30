@@ -1,17 +1,19 @@
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 
-import { themeSlice } from '../reducers/themeSlice';
-import { calendarApi } from '../api/calendarApi';
+import themeReducer from '../reducers/themeSlice';
+import holidayReducer from '../reducers/holidaySlice';
+import { holidayApi } from '../apis/holidayApi';
 
 export const store = configureStore({
     reducer: {
-        theme: themeSlice.reducer,
-        [calendarApi.reducerPath]: calendarApi.reducer,
+        theme: themeReducer,
+        holidays: holidayReducer,
+        [holidayApi.reducerPath]: holidayApi.reducer,
     },
     middleware: (getDefaultMiddleware) => getDefaultMiddleware({
         serializableCheck: false,
     }).concat(
-        calendarApi.middleware,
+        holidayApi.middleware,
     ),
 });
 
