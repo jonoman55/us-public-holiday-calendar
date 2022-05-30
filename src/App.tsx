@@ -9,7 +9,7 @@ import { lightTheme, darkTheme } from './theme';
 
 const Routes = lazy(() => import('./routes'));
 
-// TODO : Publish to netlify
+// TODO : Publish to Netlify
 const App = () => {
     const theme = useAppSelector((state) => state.theme);
     const activeTheme = createTheme(theme.darkTheme ? darkTheme : lightTheme);
