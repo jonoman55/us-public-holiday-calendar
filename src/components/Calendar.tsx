@@ -10,6 +10,8 @@ import { PublicHoliday } from "../types";
 const initialValue = new Date();
 
 // TODO : Display holiday info when a holiday date is clicked
+// TODO : Fix the infinite loop caused by the AbortController -> implementing createApi may help
+// DOCS : https://mui.com/x/react-date-pickers/date-picker/#ServerRequestDatePicker.tsx
 const Calendar = () => {
     const requestAbortController = useRef<AbortController | null>(null);
 
