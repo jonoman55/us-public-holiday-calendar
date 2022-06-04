@@ -2,26 +2,20 @@
 import { useState, useEffect, useRef, useMemo, useCallback, Fragment } from "react";
 import { LocalizationProvider, CalendarPickerSkeleton, StaticDatePicker, PickersDay } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import { Avatar, Badge, Card, CardActions, CardContent, CardHeader, Collapse, IconButton, Link, TextField, Typography } from "@mui/material";
-import { FaWikipediaW } from "react-icons/fa";
-import { Favorite, Share } from "@mui/icons-material";
+import { Badge, TextField } from "@mui/material";
 import moment from "moment";
 
-import { ExpandMoreButton } from "./ExpandMore";
-import { HolidayAvatar } from "./HolidayAvatar";
+import HolidayCard from "./HolidayCard";
 import { fetchHolidays } from "../apis/publicHolidayApi";
-import { createWikiUrl } from "../helpers";
 
 // import { holidayApi } from "../api/holidayApi";
 // import { useAppDispatch } from "../app/hooks";
 
-import { Holiday, HolidayResponse } from "../types";
+import type { Holiday, HolidayResponse } from "../types";
 
 const initialValue = new Date();
 
 // TODO : Add custom ToolTip to buttons
-// TODO : Move the selected holiday card to new file
-// TODO : Move the wiki action icon to card actions and replace with clear button
 // TODO : Hook up wiki api to populate card data for each holiday
 // TODO : Find an image api for the holiday card
 // DOCS : https://mui.com/x/react-date-pickers/date-picker/#ServerRequestDatePicker.tsx
@@ -33,16 +27,11 @@ const Calendar = () => {
     const [publicHolidays, setPublicHolidays] = useState<Holiday[] | undefined>([]);
     const [holidays, setHolidays] = useState<number[] | undefined>([]);
 
-    const [expanded, setExpanded] = useState(false);
-
-    const handleExpandClick = () => {
-        setExpanded(!expanded);
-    };
-
     const fetchHighlightedDays = (date: Date) => {
         const controller = new AbortController();
-        fetchHolidays(date, {
-            signal: controller.signal,
+        fetchHolidays({
+            date,
+            signal: controller.signal
         })
             .then((res) => {
                 const holidayRes: HolidayResponse[] = res.data.map((holiday: HolidayResponse) => {
@@ -74,7 +63,6 @@ const Calendar = () => {
                     throw error;
                 }
             });
-
         requestAbortController.current = controller;
     };
 
@@ -103,11 +91,6 @@ const Calendar = () => {
             && holiday.type === "Public"
         ).shift() as Holiday;
     }, [publicHolidays, value]);
-
-    const wikiLink = useMemo(() => {
-        if (selectedHoliday?.localName)
-            return createWikiUrl(selectedHoliday?.localName);
-    }, [selectedHoliday]);
 
     // console.log(selectedHoliday);
 
@@ -140,42 +123,15 @@ const Calendar = () => {
                     }}
                 />
             </LocalizationProvider>
-            {selectedHoliday?.localName && (
-                <Card elevation={2}>
-                    <CardHeader
-                        title={selectedHoliday.localName}
-                        subheader={new Date(selectedHoliday.date).toLocaleDateString()}
-                        avatar={<Avatar><HolidayAvatar name={selectedHoliday.localName} /></Avatar>}
-                        action={<IconButton component={Link} href={wikiLink} target="_blank"><FaWikipediaW /></IconButton>}
-                    />
-                    <CardContent>
-                        <Typography variant="body2" color="text.secondary">
-                            Holiday Description
-                        </Typography>
-                    </CardContent>
-                    <CardActions disableSpacing>
-                        <IconButton aria-label="add to favorites">
-                            <Favorite />
-                        </IconButton>
-                        <IconButton aria-label="share">
-                            <Share />
-                        </IconButton>
-                        <ExpandMoreButton
-                            expanded={expanded}
-                            onClick={handleExpandClick}
-                        />
-                    </CardActions>
-                    <Collapse in={expanded} timeout="auto" unmountOnExit>
-                        <CardContent>
-                            <Typography paragraph>
-                                More Info
-                            </Typography>
-                        </CardContent>
-                    </Collapse>
-                </Card>
+            {selectedHoliday && selectedHoliday?.localName && (
+                <HolidayCard
+                    holiday={selectedHoliday}
+                    localName={selectedHoliday.localName}
+                    onClick={() => setValue(initialValue)}
+                />
             )}
         </Fragment>
     );
-}
+};
 
 export default Calendar;

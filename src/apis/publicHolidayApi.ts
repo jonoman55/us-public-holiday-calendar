@@ -1,7 +1,7 @@
 import axios from "axios";
 import moment from "moment";
 
-import { getEvn } from '../helpers';
+import { getEvn } from "../helpers";
 
 import type { ErrorName, HolidayResponse } from "../types";
 
@@ -15,10 +15,15 @@ const options = (year: string, country: string) => {
             "X-RapidAPI-Host": host,
             "X-RapidAPI-Key": key,
         },
-    }
+    };
 };
 
-export const fetchHolidays = (date: Date, { signal }: { signal: AbortSignal }) => {
+interface FetchProps {
+    date: Date;
+    signal: AbortSignal;
+}
+
+export const fetchHolidays = ({ date, signal }: FetchProps) => {
     const year: string = date.getFullYear().toString();
     const country: string = "US";
     return new Promise<any>((resolve, reject) => {
