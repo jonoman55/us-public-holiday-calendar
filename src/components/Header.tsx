@@ -7,6 +7,7 @@ import calendar from "../images/calendar.png";
 
 // TODO : Convert Toolbar to styled component
 // TODO : Add FlexText to shrink the text size depending on screen size
+// TODO : Convert Calendar Icon to refresh page IconButton
 const Header = () => {
     const dispatch = useAppDispatch();
     const { darkTheme } = useAppSelector((state) => state.theme);

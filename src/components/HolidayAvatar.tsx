@@ -9,9 +9,9 @@ export const HolidayAvatar = ({ name }: { name: string; }): JSX.Element => {
     switch (name) {
         case "New Year's Day":
             return <GiPartyPopper style={style} />;
-        case "Martin Luther King, Jr. Day":
+        case "Martin Luther King Jr. Day":
             return <GiFist style={style} />;
-        case "Presidents Day":
+        case "President's Day":
             return <FaFlagUsa style={style} />;
         case "Good Friday":
             return <FaCross style={style} />;

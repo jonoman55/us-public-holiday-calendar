@@ -1,57 +1,47 @@
-import { useState, useMemo } from "react";
-import { Avatar, Card, CardActions, CardContent, CardHeader, Collapse, IconButton, Link, Typography } from "@mui/material";
+import { useMemo } from "react";
+import { Avatar, Card, CardActions, CardContent, CardHeader, IconButton, Link, Typography } from "@mui/material";
 import { Clear } from "@mui/icons-material";
 import { FaWikipediaW } from "react-icons/fa";
 
-import { ExpandMoreButton } from "./ExpandMore";
 import { HolidayAvatar } from "./HolidayAvatar";
 import { createWikiUrl } from "../helpers";
 
-import type { Holiday } from "../types";
+import type { PublicHoliday } from "../types";
 
 interface HolidayCardProps {
-    holiday: Holiday;
-    localName: string;
+    holiday: PublicHoliday;
     onClick: () => void;
 };
 
-const HolidayCard = ({ holiday, localName, onClick }: HolidayCardProps) => {
-    const [expanded, setExpanded] = useState(false);
+const sanitizeName = (name: string) => {
+    if (name.includes('(')) {
+        return name.replace('(substitute)', '').trim();
+    }
+    return name;
+};
 
-    const handleExpandClick = () => setExpanded(!expanded);
+const HolidayCard = ({ holiday, onClick }: HolidayCardProps) => {
+    const holidayName: string = useMemo(() => sanitizeName(holiday.name), [holiday]);
 
-    const wikiLink = useMemo(() => {
-        if (localName)
-            return createWikiUrl(localName);
-    }, [localName]);
+    const wikiLink: string = useMemo(() => createWikiUrl(holidayName), [holidayName]);
 
     return (
-        <Card elevation={2}>
+        <Card elevation={2} sx={{ bgcolor: (theme) => theme.palette.mode === 'dark' ? 'primary.dark' : 'primary.main' }}>
             <CardHeader
-                title={localName}
-                subheader={new Date(holiday.date).toLocaleDateString()}
-                avatar={<Avatar><HolidayAvatar name={localName} /></Avatar>}
-                action={<IconButton onClick={onClick}><Clear /></IconButton>} />
+                title={holidayName}
+                subheader={new Date(holiday.date.iso).toLocaleDateString('en-US', { timeZone: 'UTC' })}
+                avatar={<Avatar><HolidayAvatar name={holidayName} /></Avatar>}
+                action={<IconButton onClick={onClick}><Clear sx={{ color: 'primary.contrastText' }} /></IconButton>} />
             <CardContent>
                 <Typography variant="body2" color="text.secondary">
-                    Holiday Description
+                    {holiday.description}
                 </Typography>
             </CardContent>
             <CardActions disableSpacing>
-                <IconButton component={Link} href={wikiLink} target="_blank">
+                <IconButton component={Link} href={wikiLink} target="_blank" sx={{ color: 'primary.contrastText' }}>
                     <FaWikipediaW />
                 </IconButton>
-                <ExpandMoreButton
-                    expanded={expanded}
-                    onClick={handleExpandClick} />
             </CardActions>
-            <Collapse in={expanded} timeout="auto" unmountOnExit>
-                <CardContent>
-                    <Typography paragraph>
-                        More Info
-                    </Typography>
-                </CardContent>
-            </Collapse>
         </Card>
     );
 };

@@ -2,15 +2,15 @@ import axios from "axios";
 
 import { getEvn } from "../helpers";
 
-import type { CalendarHolidayRes, FetchProps } from "../types";
+import type { OptionParams, FetchParams, RequestParams } from "../types";
 
 const RAPID_API_HOST = getEvn("REACT_APP_RAPID_API_HOST");
 const RAPID_API_KEY = getEvn("REACT_APP_RAPID_API_KEY");
 
-const options = (year: string, country: string) => {
+const options = ({ year, country }: OptionParams) => {
     return {
         method: "GET",
-        url: `https://${RAPID_API_HOST}/${year ?? new Date().getFullYear().toString()}/${country ?? 'US'}`,
+        url: `https://${RAPID_API_HOST}/${year}/${country}`,
         headers: {
             "X-RapidAPI-Host": RAPID_API_HOST,
             "X-RapidAPI-Key": RAPID_API_KEY,
@@ -18,26 +18,34 @@ const options = (year: string, country: string) => {
     };
 };
 
-export const fetchHolidays = ({ date, signal }: FetchProps) => {
-    const year: string = date.getFullYear().toString();
-    const country: string = "US";
+export const fetchHolidays = ({ date, signal }: FetchParams) => {
     return new Promise<any>((resolve, reject) => {
-        resolve(axios.request(options(year, country)));
+        const requestOptions = options({
+            year: date.getFullYear().toString(),
+            country: "US"
+        });
+        resolve(axios.request(requestOptions));
         signal.onabort = () => {
             reject(new DOMException('aborted', 'AbortError'));
         };
     });
 };
 
-const API_KEY = getEvn("REACT_APP_CANDENAR_API_KEY");
+const CALENDAR_API_KEY = getEvn("REACT_APP_CALENDAR_API_KEY");
 
-export const fetchPublicHolidays = ({ date, signal }: FetchProps) => {
-    const year = date.getFullYear().toString();
-    const country: string = "US";
-    return new Promise<CalendarHolidayRes>((resolve, reject) => {
-        resolve(axios.get(
-            `https://calendarific.com/api/v2/holidays?api_key=${API_KEY}&country=${country}&year=${year}&type=national`
-        ));
+const requestBuilder = ({ endpoint, country, year, type, language }: RequestParams) =>
+    `https://calendarific.com/api/v2/${endpoint}?api_key=${CALENDAR_API_KEY}&country=${country}&year=${year}&type=${type}&language=${language}`;
+
+export const fetchPublicHolidays = ({ date, signal }: FetchParams) => {
+    const requestUrl = requestBuilder({
+        endpoint: 'holidays',
+        country: 'us',
+        year: date.getFullYear().toString(),
+        type: 'national',
+        language: 'en'
+    });
+    return new Promise<any>((resolve, reject) => {
+        resolve(axios.get(requestUrl));
         signal.onabort = () => {
             reject(new DOMException('aborted', 'AbortError'));
         };

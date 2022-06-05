@@ -1,11 +1,15 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-import { getItem } from '../hooks/useStorage';
+import { getItem } from '../hooks';
 
-const theme = getItem('theme');
+const theme = getItem('theme') as string;
 
-const initialState = {
-    darkTheme: Boolean(theme) ? theme : true
+interface ThemeState {
+    darkTheme: boolean;
+}
+
+const initialState: ThemeState = {
+    darkTheme: Boolean(theme) ?? false
 };
 
 export const themeSlice = createSlice({
@@ -16,7 +20,7 @@ export const themeSlice = createSlice({
             state.darkTheme = !state.darkTheme;
             localStorage.setItem(
                 'theme',
-                state.darkTheme
+                state.darkTheme.toString()
             );
         },
     },

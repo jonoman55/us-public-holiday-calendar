@@ -4,8 +4,9 @@ import { getEvn } from '../helpers';
 
 import type { QueryParams } from '../types';
 
-const API_KEY = getEvn("REACT_APP_CANDENAR_API_KEY");
+const API_KEY = getEvn("REACT_APP_CALENDAR_API_KEY");
 
+// DOCS : https://calendarific.com/api-documentation
 export const calendarApi = createApi({
     reducerPath: 'calendarApi',
     baseQuery: fetchBaseQuery({
