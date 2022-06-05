@@ -1,27 +1,22 @@
 import axios from "axios";
-import moment from "moment";
 
 import { getEvn } from "../helpers";
 
-import type { ErrorName, HolidayResponse } from "../types";
+import type { CalendarHolidayRes, FetchProps } from "../types";
+
+const RAPID_API_HOST = getEvn("REACT_APP_RAPID_API_HOST");
+const RAPID_API_KEY = getEvn("REACT_APP_RAPID_API_KEY");
 
 const options = (year: string, country: string) => {
-    const host = getEvn("REACT_APP_RAPID_API_HOST");
-    const key = getEvn("REACT_APP_RAPID_API_KEY");
     return {
         method: "GET",
-        url: `https://${host}/${year}/${country ?? 'US'}`,
+        url: `https://${RAPID_API_HOST}/${year ?? new Date().getFullYear().toString()}/${country ?? 'US'}`,
         headers: {
-            "X-RapidAPI-Host": host,
-            "X-RapidAPI-Key": key,
+            "X-RapidAPI-Host": RAPID_API_HOST,
+            "X-RapidAPI-Key": RAPID_API_KEY,
         },
     };
 };
-
-interface FetchProps {
-    date: Date;
-    signal: AbortSignal;
-}
 
 export const fetchHolidays = ({ date, signal }: FetchProps) => {
     const year: string = date.getFullYear().toString();
@@ -34,37 +29,17 @@ export const fetchHolidays = ({ date, signal }: FetchProps) => {
     });
 };
 
-/**
- * // TODO : Remove from project
- * @deprecated causes infinite loop due to missing AbortSignal 
- */
-export const fetchPublicHolidays = async (date: Date) => {
-    try {
-        const response = await axios.request(
-            options(date.getFullYear().toString(), "US")
-        );
-        // eslint-disable-next-line
-        return response.data.map((holiday: HolidayResponse) => {
-            if (date.getMonth() === new Date(holiday.date).getMonth()) {
-                return {
-                    counties: holiday.counties,
-                    countryCode: holiday.countryCode,
-                    date: holiday.date,
-                    fixed: holiday.fixed,
-                    global: holiday.global,
-                    launchYear: holiday.launchYear,
-                    localName: holiday.localName,
-                    name: holiday.name,
-                    type: holiday.type,
-                    day: parseInt(moment(date).format("D"), 10)
-                };
-            }
-        });
-    } catch (error) {
-        const { name } = error as ErrorName;
-        // ignore the error if it's caused by `controller.abort`
-        if (name !== "AbortError") {
-            throw error;
-        }
-    }
+const API_KEY = getEvn("REACT_APP_CANDENAR_API_KEY");
+
+export const fetchPublicHolidays = ({ date, signal }: FetchProps) => {
+    const year = date.getFullYear().toString();
+    const country: string = "US";
+    return new Promise<CalendarHolidayRes>((resolve, reject) => {
+        resolve(axios.get(
+            `https://calendarific.com/api/v2/holidays?api_key=${API_KEY}&country=${country}&year=${year}&type=national`
+        ));
+        signal.onabort = () => {
+            reject(new DOMException('aborted', 'AbortError'));
+        };
+    });
 };

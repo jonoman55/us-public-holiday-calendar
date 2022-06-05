@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { Avatar, Card, CardActions, CardContent, CardHeader, Collapse, IconButton, Link, Typography } from "@mui/material";
-import { FaWikipediaW } from "react-icons/fa";
 import { Clear } from "@mui/icons-material";
+import { FaWikipediaW } from "react-icons/fa";
 
 import { ExpandMoreButton } from "./ExpandMore";
 import { HolidayAvatar } from "./HolidayAvatar";

@@ -28,3 +28,37 @@ export type QueryParams = {
     year: string;
     country: string; 
 }
+
+export type CalendarHoliday = {
+    name: string;
+    description: string;
+    country: {
+      id: string;
+      name: string;    
+    },
+    date: {
+      iso: string;
+      datetime: {
+        year: number,
+        month: number,
+        day: number
+      }
+    },
+    type: string[],
+    urlid: string;
+    locations: string;
+    states: string;  
+}
+
+export interface CalendarHolidayExt extends CalendarHoliday {
+  day: number;
+}
+
+export type CalendarResponse = {
+  data: CalendarHoliday[] | undefined;
+}
+
+export type FetchProps = {
+  date: Date;
+  signal: AbortSignal;
+}
