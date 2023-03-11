@@ -1,8 +1,17 @@
+// TODO : Move createPublicHoliday & isPublicHoliday to helpers
+// TODO : Hook up to calendarApi and holidaySlice
+// TODO : Add styled TextField in Calendar
+// TODO : Add custom ToolTip to buttons
+// TODO : Hook up wiki api to populate card data for each holiday
+// TODO : Find an image api for the holiday card
+// DOCS : https://mui.com/x/react-date-pickers/date-picker/#ServerRequestDatePicker.tsx
+
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
-import { LocalizationProvider, CalendarPickerSkeleton, StaticDatePicker, PickersDay } from "@mui/x-date-pickers";
+import { LocalizationProvider, CalendarPickerSkeleton, StaticDatePicker, PickersDay, PickersDayProps } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { Badge, Paper, Stack, TextField } from "@mui/material";
+import { alpha, darken, lighten } from "@mui/material/styles";
 import moment from "moment";
 
 import HolidayCard from "./HolidayCard";
@@ -13,17 +22,76 @@ import { fetchPublicHolidays } from "../apis/publicHolidayApi";
 
 import type { CalendarHoliday, CalendarResponse, PublicHoliday, SelectedDay } from "../types";
 
-const initialValue = new Date();
+/**
+ * Initial Holiday Values
+ */
+const initialHolidayValues = {
+    parsedDay: 0,
+    name: "",
+    description: "",
+    country: {
+        id: "",
+        name: ""
+    },
+    date: {
+        iso: "",
+        datetime: {
+            year: 0,
+            month: 0,
+            day: 0
+        }
+    },
+    type: [],
+    urlid: "",
+    locations: "",
+    states: ""
+};
 
-// TODO : Add useSnackbar
-// TODO : Style the Calendar
-// TODO : Add styled TextField in Calendar
-// TODO : Remove duplicate holidays (substitutes)
-// TODO : Move selectedHoliday to useState to make it clearable
-// TODO : Add custom ToolTip to buttons
-// TODO : Hook up wiki api to populate card data for each holiday
-// TODO : Find an image api for the holiday card
-// DOCS : https://mui.com/x/react-date-pickers/date-picker/#ServerRequestDatePicker.tsx
+/**
+ * Initial Date Value
+ */
+const initialValue: Date = new Date();
+
+/**
+ * Create Public Holiday
+ * @param holiday Calendar Holiday 
+ * @returns Public Holiday
+ */
+const createPublicHoliday = (holiday: CalendarHoliday): PublicHoliday => ({
+    name: holiday.name,
+    description: holiday.description,
+    country: {
+        id: holiday.country.id,
+        name: holiday.country.name,
+    },
+    date: {
+        iso: holiday.date.iso,
+        datetime: {
+            year: holiday.date.datetime.year,
+            month: holiday.date.datetime.month,
+            day: holiday.date.datetime.day
+        }
+    },
+    type: holiday.type,
+    urlid: holiday.urlid,
+    locations: holiday.locations,
+    states: holiday.states,
+    parsedDay: holiday.date.datetime.day
+});
+
+/**
+ * Check if date is a public holiday
+ * @param date Current Date
+ * @param holidayDate Target Holiday Date
+ * @returns true or false
+ */
+const isPublicHoliday = (date: Date, holidayDate: Date) => {
+    return date.getFullYear() === holidayDate.getFullYear() && date.getMonth() === holidayDate.getMonth()
+};
+
+/**
+ * Calendar
+ */
 const Calendar = () => {
     const requestAbortController = useRef<AbortController | null>(null);
 
@@ -31,15 +99,29 @@ const Calendar = () => {
     const [value, setValue] = useState<Date | null>(initialValue);
     const [publicHolidays, setPublicHolidays] = useState<PublicHoliday[]>([]);
     const [holidays, setHolidays] = useState<number[]>([]);
+    const [selectedHoliday, setSelectedHoliday] = useState<PublicHoliday>(initialHolidayValues);
+
+    const resetState = useCallback(() => {
+        setValue(initialValue)
+        setIsLoading(false);
+        setHolidays([]);
+        setPublicHolidays([]);
+        setSelectedHoliday(initialHolidayValues);
+    }, []);
+
+    useEffect(
+        () => resetState(),
+        [resetState]
+    );
 
     // render selected day
-    const renderSelectedPickerDay = ({ date, selectedDates, pickersDayProps }: SelectedDay) => {
-        const isSelected =
-            !pickersDayProps.outsideCurrentMonth &&
-            holidays?.find((currHoliday) => currHoliday === date.getDate());
+    const renderSelectedPickerDay = ({ day, pickersDayProps }: SelectedDay) => {
+        const isSelected = !pickersDayProps.outsideCurrentMonth && holidays?.find(
+            (currHoliday) => currHoliday === day.getDate()
+        );
         return (
             <Badge
-                key={date.toString()}
+                key={day.toString()}
                 overlap="circular"
                 badgeContent={isSelected ? "🚫" : undefined}
             >
@@ -48,63 +130,71 @@ const Calendar = () => {
         );
     };
 
-    const fetchSelectedDays = (date: Date) => {
-        const controller = new AbortController();
-        fetchPublicHolidays({
-            date,
-            signal: controller.signal
-        })
-            .then(({ data }: CalendarResponse) => {
-                // get holidays for current month
-                const holidays = data.response.holidays;
-                const calendarRes = holidays.map((holiday: CalendarHoliday) => {
-                    const holidayDate = new Date(holiday.date.iso);
-                    if (date.getFullYear() === holidayDate.getFullYear() && date.getMonth() === holidayDate.getMonth()) {
-                        return {
-                            name: holiday.name,
-                            description: holiday.description,
-                            country: {
-                                id: holiday.country.id,
-                                name: holiday.country.name,
-                            },
-                            date: {
-                                iso: holiday.date.iso,
-                                datetime: {
-                                    year: holiday.date.datetime.year,
-                                    month: holiday.date.datetime.month,
-                                    day: holiday.date.datetime.day
-                                }
-                            },
-                            type: holiday.type,
-                            urlid: holiday.urlid,
-                            locations: holiday.locations,
-                            states: holiday.states,
-                            parsedDay: holiday.date.datetime.day
-                        } as PublicHoliday;
-                    } else return undefined;
-                }).filter((d: PublicHoliday | undefined) => d !== undefined);
-                // set state
-                setPublicHolidays(calendarRes as PublicHoliday[]);
-                setHolidays(calendarRes.map((holiday) => holiday?.date?.datetime.day as number));
-                setIsLoading(false);
+    const fetchSelectedDays = useCallback<(date: Date) => void>(
+        (date: Date) => {
+            const controller: AbortController = new AbortController();
+
+            fetchPublicHolidays({
+                date,
+                signal: controller.signal
             })
-            .catch((error) => {
-                // ignore the error if it's caused by `controller.abort`
-                if (error.name !== 'AbortError') {
-                    throw error;
-                }
-            });
-        requestAbortController.current = controller;
-    };
+                .then(({ data }: CalendarResponse) => {
+
+                    // get holidays for current month
+                    const publicHolidays: PublicHoliday[] = data?.response?.holidays?.map(
+                        (holiday: CalendarHoliday) => isPublicHoliday(date, new Date(holiday.date.iso))
+                            ? createPublicHoliday(holiday)
+                            : undefined
+                    ).filter(
+                        (d: PublicHoliday | undefined) => d !== undefined
+                    ) as PublicHoliday[];
+
+                    // console.log('publicHolidays: ', publicHolidays);
+
+                    // get holiday dates as numbers
+                    const holidayDates: number[] = publicHolidays.map(
+                        (holiday: PublicHoliday) => Number(holiday?.date?.datetime?.day)
+                    );
+
+                    // console.log('holidayDates: ', holidayDates);
+
+                    // set state
+                    setSelectedHoliday(initialHolidayValues);
+                    setPublicHolidays(publicHolidays);
+                    setHolidays(holidayDates);
+                    setIsLoading(false);
+                })
+                .catch((error) => {
+                    // ignore the error if it's caused by `controller.abort`
+                    if (error.name !== 'AbortError') {
+                        throw error;
+                    }
+                });
+
+            requestAbortController.current = controller;
+        },
+        []
+    );
 
     useEffect(() => {
-        // fetchHighlightedDays(initialValue);
+        // fetch holidays from selected date range
         fetchSelectedDays(initialValue);
         // abort request on unmount
-        return () => requestAbortController.current?.abort();
-    }, []);
+        return () => {
+            requestAbortController.current?.abort();
+        };
+    }, [fetchSelectedDays]);
 
-    const handleChange = useCallback((date: Date) => {
+    // get selected holiday from calendar
+    const handleSelectedHoliday = useCallback<(date: Date) => void>((date: Date) => {
+        setSelectedHoliday(publicHolidays?.filter((holiday: PublicHoliday) =>
+            holiday.date.iso === moment(date).format("YYYY-MM-DD") && holiday.type.find(
+                (t) => t === 'National holiday'
+            )
+        ).shift() as PublicHoliday);
+    }, [publicHolidays]);
+
+    const handleCalendarChange = useCallback<(date: Date) => void>((date: Date) => {
         if (requestAbortController.current) {
             // make sure that you are aborting useless requests
             // because it is possible to switch between months pretty quickly
@@ -115,47 +205,78 @@ const Calendar = () => {
             setPublicHolidays([]);
             fetchSelectedDays(date);
         }
-    }, []);
+    }, [fetchSelectedDays]);
 
-    // get selected holiday from calendar
-    const selectedHoliday = useMemo(() => {
-        return publicHolidays?.filter((holiday: PublicHoliday) =>
-            holiday.date.iso === moment(value).format("YYYY-MM-DD")
-            && holiday.type.find((t) => t === 'National holiday')
-        ).shift();
-    }, [publicHolidays, value]);
+    useEffect(() => {
+        if (value) handleSelectedHoliday(value)
+    }, [handleSelectedHoliday, value]);
 
-    // console.log(selectedHoliday);
+    const handleChange = (newValue: Date | null) => {
+        setValue(newValue);
+        if (newValue) {
+            handleSelectedHoliday(newValue);
+        }
+    };
+
+    const handleOnClick = () => {
+        setSelectedHoliday(initialHolidayValues);
+    };
+
+    const renderDay = (day: Date, selectedDays: Date[], pickersDayProps: PickersDayProps<Date>) => (
+        renderSelectedPickerDay({
+            day,
+            selectedDays,
+            pickersDayProps
+        })
+    );
+
+    // console.log('selectedHoliday: ', selectedHoliday);
+    // console.log('value: ', value);
 
     return (
         <Stack direction='column' spacing={2}>
-            <Paper elevation={2} sx={{ bgcolor: 'primary.main' }}>
+            <Paper elevation={2} sx={(theme) => ({
+                borderRadius: theme.shape.borderRadius,
+                backgroundColor: theme.palette.mode === 'dark'
+                    ? lighten(
+                        theme.palette.primary.dark,
+                        theme.palette.action.disabledOpacity
+                    )
+                    : alpha(
+                        theme.palette.primary.main,
+                        theme.palette.action.hoverOpacity
+                    ),
+                '& .MuiPickerStaticWrapper-root': {
+                    borderRadius: theme.shape.borderRadius,
+                    backgroundColor: theme.palette.mode === 'dark'
+                        ? lighten(
+                            theme.palette.primary.dark,
+                            theme.palette.action.disabledOpacity
+                        )
+                        : alpha(
+                            theme.palette.primary.main,
+                            theme.palette.action.hoverOpacity
+                        ),
+                },
+            })}>
                 <LocalizationProvider dateAdapter={AdapterDateFns}>
                     <StaticDatePicker
                         showToolbar
                         value={value}
                         loading={isLoading}
-                        onChange={(newValue: Date | null) => {
-                            setValue(newValue);
-                        }}
-                        onYearChange={handleChange}
-                        onMonthChange={handleChange}
+                        onChange={handleChange}
+                        onYearChange={handleCalendarChange}
+                        onMonthChange={handleCalendarChange}
                         renderInput={(params) => <TextField {...params} />}
                         renderLoading={() => <CalendarPickerSkeleton />}
-                        renderDay={(day, _value, DayComponentProps) => 
-                            renderSelectedPickerDay({
-                                date: day,
-                                selectedDates: _value,
-                                pickersDayProps: DayComponentProps
-                            })
-                        }
+                        renderDay={renderDay}
                     />
                 </LocalizationProvider>
             </Paper>
-            {selectedHoliday && (
+            {selectedHoliday && selectedHoliday.name !== '' && (
                 <HolidayCard
                     holiday={selectedHoliday}
-                    onClick={() => setValue(initialValue)}
+                    onClick={handleOnClick}
                 />
             )}
         </Stack>

@@ -4,6 +4,8 @@ import themeReducer from '../reducers/themeSlice';
 import holidayReducer from '../reducers/holidaySlice';
 import { holidayApi } from '../apis/holidayApi';
 import { calendarApi } from '../apis/calendarApi';
+import { wikiApi } from '../apis/wikiApi';
+import { setupListeners } from '@reduxjs/toolkit/dist/query';
 
 export const store = configureStore({
     reducer: {
@@ -11,14 +13,19 @@ export const store = configureStore({
         holidays: holidayReducer,
         [holidayApi.reducerPath]: holidayApi.reducer,
         [calendarApi.reducerPath]: calendarApi.reducer,
+        [wikiApi.reducerPath]: wikiApi.reducer,
     },
     middleware: (getDefaultMiddleware) => getDefaultMiddleware({
         serializableCheck: false,
     }).concat(
         holidayApi.middleware,
         calendarApi.middleware,
+        wikiApi.middleware,
     ),
 });
+
+// NOTE : for refetchOnReconnect
+setupListeners(store.dispatch);
 
 export type AppDispatch = typeof store.dispatch;
 export type RootState = ReturnType<typeof store.getState>;

@@ -1,10 +1,16 @@
-import { ReactNode } from "react";
+import React from "react";
 import { PickersDayProps } from "@mui/x-date-pickers";
 
+/**
+ * React Children Props
+ */
 export type ChildProps = {
-  children: ReactNode;
+  children?: React.ReactNode;
 };
 
+/**
+ * Holiday Type
+ */
 export type Holiday = {
   counties: string[] | null;
   countryCode: string | null;
@@ -15,21 +21,33 @@ export type Holiday = {
   localName: string | null;
   name: string | null;
   type: string | null;
-}
+};
 
+/**
+ * Holiday API Response
+ */
 export interface HolidayResponse extends Holiday {
   day: number;
-}
+};
 
+/**
+ * Error Name Type
+ */
 export type ErrorName = {
   name: string | any;
-}
+};
 
+/**
+ * Holiday Query Params
+ */
 export type QueryParams = {
   year: string;
   country: string;
-}
+};
 
+/**
+ * Calendar Holiday Type
+ */
 export type CalendarHoliday = {
   name: string;
   description: string;
@@ -49,32 +67,50 @@ export type CalendarHoliday = {
   urlid: string;
   locations: string;
   states: string;
-}
+};
 
+/**
+ * Public Holiday
+ */
 export interface PublicHoliday extends CalendarHoliday {
   parsedDay: number;
-}
+};
 
+/**
+ * Calendar API Response Data
+ */
 export type CalendarResponse = {
   data: {
     meta: {
-      code: number,
+      code: number;
     },
     response: {
-      holidays: CalendarHoliday[],
+      holidays: CalendarHoliday[];
     }
   }
 };
 
+/**
+ * Fetch Params Type
+ */
 export type FetchParams = {
   date: Date;
   signal: AbortSignal;
-}
+};
 
+/**
+ * Holiday Endpoint Type
+ */
 export type Endpoint = 'holidays' | 'languages' | 'countries';
 
+/**
+ * Type of Holiday
+ */
 export type Type = 'national' | 'local' | 'religious' | 'observance';
 
+/**
+ * Request Params Type
+ */
 export type RequestParams = {
   endpoint: Endpoint;
   country: string,
@@ -85,13 +121,19 @@ export type RequestParams = {
   language: string;
 }
 
+/**
+ * Option Params Type
+ */
 export type OptionParams = {
-  year: string,
-  country: string
-}
+  year: string;
+  country: string;
+};
 
+/**
+ * Selected Calendar Day
+ */
 export type SelectedDay = {
-  date: Date;
-  selectedDates: any;
+  day: Date,
+  selectedDays: Date[],
   pickersDayProps: PickersDayProps<Date>;
-}
+};

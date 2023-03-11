@@ -4,23 +4,21 @@ import { getEvn } from "../helpers";
 
 import type { OptionParams, FetchParams, RequestParams } from "../types";
 
-const RAPID_API_HOST = getEvn("REACT_APP_RAPID_API_HOST");
-const RAPID_API_KEY = getEvn("REACT_APP_RAPID_API_KEY");
+const RAPID_API_HOST: string = getEvn("REACT_APP_RAPID_API_HOST");
+const RAPID_API_KEY: string = getEvn("REACT_APP_RAPID_API_KEY");
 
-const options = ({ year, country }: OptionParams) => {
-    return {
-        method: "GET",
-        url: `https://${RAPID_API_HOST}/${year}/${country}`,
-        headers: {
-            "X-RapidAPI-Host": RAPID_API_HOST,
-            "X-RapidAPI-Key": RAPID_API_KEY,
-        },
-    };
-};
+const createOptions = ({ year, country }: OptionParams) => ({
+    method: "GET",
+    url: `https://${RAPID_API_HOST}/${year}/${country}`,
+    headers: {
+        "X-RapidAPI-Host": RAPID_API_HOST,
+        "X-RapidAPI-Key": RAPID_API_KEY,
+    },
+});
 
 export const fetchHolidays = ({ date, signal }: FetchParams) => {
     return new Promise<any>((resolve, reject) => {
-        const requestOptions = options({
+        const requestOptions = createOptions({
             year: date.getFullYear().toString(),
             country: "US"
         });
@@ -31,13 +29,14 @@ export const fetchHolidays = ({ date, signal }: FetchParams) => {
     });
 };
 
-const CALENDAR_API_KEY = getEvn("REACT_APP_CALENDAR_API_KEY");
+const CALENDAR_API_KEY: string = getEvn("REACT_APP_CALENDAR_API_KEY");
 
-const requestBuilder = ({ endpoint, country, year, type, language }: RequestParams) =>
-    `https://calendarific.com/api/v2/${endpoint}?api_key=${CALENDAR_API_KEY}&country=${country}&year=${year}&type=${type}&language=${language}`;
+const requestBuilder = ({ endpoint, country, year, type, language }: RequestParams): string => {
+    return `https://calendarific.com/api/v2/${endpoint}?api_key=${CALENDAR_API_KEY}&country=${country}&year=${year}&type=${type}&language=${language}`;
+};
 
 export const fetchPublicHolidays = ({ date, signal }: FetchParams) => {
-    const requestUrl = requestBuilder({
+    const requestUrl: string = requestBuilder({
         endpoint: 'holidays',
         country: 'us',
         year: date.getFullYear().toString(),

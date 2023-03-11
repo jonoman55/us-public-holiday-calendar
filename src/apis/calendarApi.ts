@@ -4,22 +4,30 @@ import { getEvn } from '../helpers';
 
 import type { QueryParams } from '../types';
 
-const API_KEY = getEvn("REACT_APP_CALENDAR_API_KEY");
+const API_KEY: string = getEvn("REACT_APP_CALENDAR_API_KEY");
+
+const baseUrl: string = `https://calendarific.com/api/v2`;
 
 // DOCS : https://calendarific.com/api-documentation
+
+/**
+ * Calendar API
+ */
 export const calendarApi = createApi({
     reducerPath: 'calendarApi',
     baseQuery: fetchBaseQuery({
-        baseUrl: `https://calendarific.com/api/v2`
+        baseUrl,
     }),
     endpoints: (builder) => ({
         getPublicHolidays: builder.query({
             query: ({ year, country }: QueryParams) => ({
                 url: `/holidays?api_key=${API_KEY}&country=${country}&year=${year}&type=national`,
-                responseHandler: async (res) => await res.json()
+                responseHandler: async (res) => await res.json(),
             }),
         }),
     }),
 });
 
-export const { useGetPublicHolidaysQuery } = calendarApi;
+export const {
+    useGetPublicHolidaysQuery
+} = calendarApi;

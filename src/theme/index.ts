@@ -1,3 +1,5 @@
+// TODO : Add types and create useActiveTheme hook
+
 import { ThemeOptions } from "@mui/material/styles";
 
 declare module '@mui/material/styles' {

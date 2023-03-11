@@ -1,11 +1,11 @@
 import { styled, Box, Button, CircularProgress, Typography } from '@mui/material';
 
 const ErrorContainer = styled(Box)(({ theme }) => ({
-    padding: theme.spacing(2), 
-    display: 'flex', 
-    flexDirection: 'column', 
-    flexWrap: 'nowrap', 
-    justifyContent: 'center', 
+    padding: theme.spacing(2),
+    display: 'flex',
+    flexDirection: 'column',
+    flexWrap: 'nowrap',
+    justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: theme.palette.background.paper
 }));
@@ -13,7 +13,7 @@ const ErrorContainer = styled(Box)(({ theme }) => ({
 interface ErrorProps {
     error: { message: string };
     resetErrorBoundary: () => void;
-}
+};
 
 export const ErrorFallback = ({ error, resetErrorBoundary }: ErrorProps) => (
     <ErrorContainer component='div' role='alert'>
@@ -24,24 +24,24 @@ export const ErrorFallback = ({ error, resetErrorBoundary }: ErrorProps) => (
 );
 
 const Container = styled(Box)(({ theme }) => ({
-    height: '100vh', 
-    width: '100%', 
+    height: '100vh',
+    width: '100%',
     display: 'flex',
-    flexDirection: 'column', 
-    flexWrap: 'nowrap', 
-    alignItems: 'center', 
+    flexDirection: 'column',
+    flexWrap: 'nowrap',
+    alignItems: 'center',
     justifyContent: 'center',
-    margin: theme.spacing(0), 
-    padding: theme.spacing(1), 
+    margin: theme.spacing(0),
+    padding: theme.spacing(1),
     backgroundColor: theme.palette.background.paper
 }));
 
-const Text = styled(Typography)(({ theme })=>({
+const Text = styled(Typography)(({ theme }) => ({
     padding: theme.spacing(2),
     color: theme.palette.primary.contrastText,
 }));
 
-const Loader = styled(CircularProgress)(({ theme })=> ({
+const Loader = styled(CircularProgress)(({ theme }) => ({
     color: theme.custom.palette.orange,
 }));
 

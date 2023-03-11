@@ -1,7 +1,10 @@
 import { Switch } from "@mui/material";
 import { styled, alpha, lighten } from "@mui/material/styles";;
 
-const OrangeSwitch = styled(Switch)(({ theme }) => ({
+/**
+ * Styled Custom Switch
+ */
+const CustomSwitch = styled(Switch)(({ theme }) => ({
     '& .MuiSwitch-thumb': {
         color: theme.custom.palette.orange,
     },
@@ -21,13 +24,19 @@ const OrangeSwitch = styled(Switch)(({ theme }) => ({
     },
 }));
 
-interface SwitchProps {
+/**
+ * Theme Switch Props
+ */
+interface ThemeSwitchProps {
     checked: boolean;
-    onChange: ((event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => void) | undefined;
-}
+    onChange: ((event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => void);
+};
 
-const ThemeSwitch = ({ checked, onChange }: SwitchProps) => (
-    <OrangeSwitch
+/**
+ * Theme Switch
+ */
+const ThemeSwitch = ({ checked, onChange }: ThemeSwitchProps) => (
+    <CustomSwitch
         checked={checked}
         onChange={onChange}
     />

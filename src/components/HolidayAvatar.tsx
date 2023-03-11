@@ -1,17 +1,30 @@
-import { useTheme } from "@mui/material/styles";
+import { useTheme, Theme } from "@mui/material/styles";
 import { NoAccounts, Work, MilitaryTech } from "@mui/icons-material";
 import { GiAfrica, GiTombstone, GiPartyPopper, GiFist, GiFireworkRocket, GiShoonerSailboat, GiChickenOven, GiPresent } from "react-icons/gi";
 import { FaFlagUsa, FaCross } from "react-icons/fa";
 
-export const HolidayAvatar = ({ name }: { name: string; }): JSX.Element => {
-    const theme = useTheme();
-    const style = { color: theme.palette.primary.contrastText };
+/**
+ * Create Avatar Icon Color
+ * @param theme MUI Theme
+ * @returns CSS Color
+ */
+const createIconColor = (theme: Theme): React.CSSProperties => ({
+    color: theme.palette.primary.contrastText
+});
+
+/**
+ * Holiday Avatar
+ * @param name Holiday Name
+ */
+export const HolidayAvatar = ({ name }: { name: string; }) => {
+    const theme: Theme = useTheme();
+    const style: React.CSSProperties = createIconColor(theme);
     switch (name) {
         case "New Year's Day":
             return <GiPartyPopper style={style} />;
         case "Martin Luther King Jr. Day":
             return <GiFist style={style} />;
-        case "President's Day":
+        case "Presidents' Day":
             return <FaFlagUsa style={style} />;
         case "Good Friday":
             return <FaCross style={style} />;
@@ -33,5 +46,5 @@ export const HolidayAvatar = ({ name }: { name: string; }): JSX.Element => {
             return <GiPresent style={style} />;
         default:
             return <NoAccounts sx={style} />;
-    }
+    };
 };

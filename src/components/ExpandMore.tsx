@@ -2,10 +2,16 @@ import { styled } from '@mui/material/styles';
 import IconButton, { IconButtonProps } from '@mui/material/IconButton';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
+/**
+ * Expand More Props
+ */
 interface ExpandMoreProps extends IconButtonProps {
     expand: boolean;
-}
+};
 
+/**
+ * Style Expand More
+ */
 export const ExpandMore = styled((props: ExpandMoreProps) => {
     const { expand, ...other } = props;
     return <IconButton {...other} />;
@@ -17,12 +23,18 @@ export const ExpandMore = styled((props: ExpandMoreProps) => {
     }),
 }));
 
-interface ExpandMoreBtnProps {
+/**
+ * Expand More Button Props
+ */
+interface ExpandMoreButtonProps {
     expanded: boolean;
     onClick: React.MouseEventHandler<HTMLButtonElement> | undefined;
-}
+};
 
-export const ExpandMoreButton = ({ expanded, onClick }: ExpandMoreBtnProps) => (
+/**
+ * Expand More Button
+ */
+export const ExpandMoreButton = ({ expanded, onClick }: ExpandMoreButtonProps) => (
     <ExpandMore
         expand={expanded}
         onClick={onClick}

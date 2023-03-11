@@ -1,3 +1,5 @@
+// TODO : Publish to Netlify
+
 import { lazy, Suspense } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { createTheme, CssBaseline, ThemeProvider } from '@mui/material';
@@ -9,7 +11,6 @@ import { lightTheme, darkTheme } from './theme';
 
 const Routes = lazy(() => import('./routes'));
 
-// TODO : Publish to Netlify
 const App = () => {
     const theme = useAppSelector((state) => state.theme);
     const activeTheme = createTheme(theme.darkTheme ? darkTheme : lightTheme);
@@ -25,6 +26,6 @@ const App = () => {
             </SnackbarProvider>
         </ThemeProvider>
     );
-}
+};
 
 export default App;

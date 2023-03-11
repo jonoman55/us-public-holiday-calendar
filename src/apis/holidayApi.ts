@@ -4,24 +4,48 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 import { getEvn } from '../helpers';
 
-import type { Holiday, QueryParams } from "../types";
+import type { Holiday, HolidayResponse, QueryParams } from "../types";
 
-const API_HOST = getEvn("REACT_APP_RAPID_API_HOST");
-const API_KEY = getEvn("REACT_APP_RAPID_API_KEY");
+const API_HOST: string = getEvn("REACT_APP_RAPID_API_HOST");
+const API_KEY: string = getEvn("REACT_APP_RAPID_API_KEY");
+
+const baseUrl: string = `https://${API_HOST}`;
 
 interface ResponsePayload {
-    data: Holiday[]
-}
+    data: Holiday[];
+};
 
 // TODO : Implement this redux api instead of using axios (needs AbortSignal)
 // DOCS : https://redux-toolkit.js.org/api/createAsyncThunk#payloadcreator
 // DOCS : https://redux-toolkit.js.org/rtk-query/usage/examples
 // EXAMPLES : https://github.com/reduxjs/redux-toolkit/tree/master/examples/query/react
+
+/**
+ * Create Holiday From Response
+ * @param holiday Holiday to parse
+ * @returns Parsed Holiday
+ */
+const createHoliday = (holiday: Holiday): HolidayResponse => ({
+    counties: holiday.counties,
+    countryCode: holiday.countryCode,
+    date: holiday.date,
+    fixed: holiday.fixed,
+    global: holiday.global,
+    launchYear: holiday.launchYear,
+    localName: holiday.localName,
+    name: holiday.name,
+    type: holiday.type,
+    day: parseInt(moment(holiday.date).format("D"), 10)
+});
+
+/**
+ * Holiday API
+ */
 export const holidayApi = createApi({
     reducerPath: 'holidayApi',
     baseQuery: fetchBaseQuery({
-        baseUrl: `https://${API_HOST}`,
-        prepareHeaders: (headers) => {
+        baseUrl,
+        prepareHeaders: (headers: Headers) => {
             headers.set("X-RapidAPI-Host", API_HOST);
             headers.set("X-RapidAPI-Key", API_KEY);
             return headers;
@@ -33,24 +57,15 @@ export const holidayApi = createApi({
                 url: `/${year}/${country}`,
                 responseHandler: async (res) => await res.json(),
             }),
-            transformResponse: (response: ResponsePayload) => {
-                return response.data.map((holiday: Holiday) => {
-                    return {
-                        counties: holiday.counties,
-                        countryCode: holiday.countryCode,
-                        date: holiday.date,
-                        fixed: holiday.fixed,
-                        global: holiday.global,
-                        launchYear: holiday.launchYear,
-                        localName: holiday.localName,
-                        name: holiday.name,
-                        type: holiday.type,
-                        day: parseInt(moment(holiday.date).format("D"), 10)
-                    };
-                });
+            transformResponse: ({ data }: ResponsePayload) => {
+                return data?.map(
+                    (holiday: Holiday) => createHoliday(holiday)
+                );
             },
         }),
     }),
 });
 
-export const { useGetPublicHolidaysQuery } = holidayApi;
+export const {
+    useGetPublicHolidaysQuery
+} = holidayApi;
