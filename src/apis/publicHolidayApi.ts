@@ -2,12 +2,12 @@ import axios from "axios";
 
 import { getEvn } from "../helpers";
 
-import type { OptionParams, FetchParams, RequestParams } from "../types";
+import type { OptionsParams, FetchParams, RequestParams } from "../types";
 
-const RAPID_API_HOST: string = getEvn("REACT_APP_RAPID_API_HOST");
-const RAPID_API_KEY: string = getEvn("REACT_APP_RAPID_API_KEY");
+const RAPID_API_HOST: string = getEvn("REACT_APP_RAPID_API_HOST") as string;
+const RAPID_API_KEY: string = getEvn("REACT_APP_RAPID_API_KEY") as string;
 
-const createOptions = ({ year, country }: OptionParams) => ({
+const createOptions = ({ year, country }: OptionsParams) => ({
     method: "GET",
     url: `https://${RAPID_API_HOST}/${year}/${country}`,
     headers: {
@@ -29,7 +29,7 @@ export const fetchHolidays = ({ date, signal }: FetchParams) => {
     });
 };
 
-const CALENDAR_API_KEY: string = getEvn("REACT_APP_CALENDAR_API_KEY");
+const CALENDAR_API_KEY: string = getEvn("REACT_APP_CALENDAR_API_KEY") as string;
 
 const requestBuilder = ({ endpoint, country, year, type, language }: RequestParams): string => {
     return `https://calendarific.com/api/v2/${endpoint}?api_key=${CALENDAR_API_KEY}&country=${country}&year=${year}&type=${type}&language=${language}`;

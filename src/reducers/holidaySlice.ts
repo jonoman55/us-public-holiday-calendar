@@ -1,9 +1,10 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { ActionReducerMapBuilder, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { type FetchBaseQueryError } from '@reduxjs/toolkit/dist/query';
 
 import { holidayApi } from '../apis/holidayApi';
 
-import type { Holiday } from '../types';
+import type { PublicHoliday } from '../types';
 
 /**
  * Type predicate to narrow an unknown error to `FetchBaseQueryError`
@@ -55,8 +56,12 @@ type HolidayState = {
     /**
      * Public Holidays
      */
-    holidays: Holiday[];
-}
+    holidays: PublicHoliday[] | null;
+    /**
+     * Selected Public Holiday
+     */
+    selectedHoliday: PublicHoliday | null;
+};
 
 /** 
  * Initial Holiday State
@@ -68,7 +73,8 @@ const initialState: HolidayState = {
     isError: false,
     error: '',
     holidays: [],
-};
+    selectedHoliday: null,
+} as HolidayState;
 
 /**
  * Holiday Slice
@@ -89,36 +95,43 @@ export const holidaySlice = createSlice({
         /**
          * Set Public Holidays 
          */
-        setHolidays: (state: HolidayState, action: PayloadAction<Holiday[]>) => {
+        setHolidays: (state: HolidayState, action: PayloadAction<PublicHoliday[] | null>) => {
             state.holidays = action.payload;
         },
+        /**
+         * Set Selected Public Holiday
+         */
+        setSelectedHoliday: (state: HolidayState, action: PayloadAction<PublicHoliday | null>) => {
+            state.selectedHoliday = action.payload;
+        },
     },
-    extraReducers: (builder) => {
-        builder.addMatcher(holidayApi.endpoints.getHolidays.matchPending, (state, action) => {
-            state.status = 'pending';
-            state.isLoading = true;
-        })
-        builder.addMatcher(holidayApi.endpoints.getHolidays.matchFulfilled, (state, action) => {
-            state.status = 'fulfilled';
-            state.isLoading = false;
-            state.isSuccess = true;
-            state.holidays = action.payload as Holiday[];
-        })
-        builder.addMatcher(holidayApi.endpoints.getHolidays.matchRejected, (state, action) => {
-            state.status = 'rejected';
-            state.isLoading = false;
-            state.isSuccess = false;
-            state.isError = true;
-            if (isFetchBaseQueryError(action.payload?.data)) {
-                const err: FetchBaseQueryError | undefined = action.payload?.data;
-                // you can access all properties of `FetchBaseQueryError` here
-                if (isErrorWithMessage(err)) {
-                    // const errMsg: string = 'error' in err ? err.error : JSON.stringify(err.data)
-                    state.error = err.message;
-                }
-            }
-        });
-    },
+    // extraReducers: (builder: ActionReducerMapBuilder<HolidayState>) => {
+    //     builder.addMatcher(holidayApi.endpoints.getHolidays.matchPending, (state, action) => {
+    //         state.status = 'pending';
+    //         state.isLoading = true;
+    //     })
+    //     builder.addMatcher(holidayApi.endpoints.getHolidays.matchFulfilled, (state, action) => {
+    //         state.status = 'fulfilled';
+    //         state.isLoading = false;
+    //         state.isSuccess = true;
+    //         state.holidays = action.payload as Holiday[];
+    //     })
+    //     builder.addMatcher(holidayApi.endpoints.getHolidays.matchRejected, (state, action) => {
+    //         state.status = 'rejected';
+    //         state.isLoading = false;
+    //         state.isSuccess = false;
+    //         state.isError = true;
+    //         if (isFetchBaseQueryError(action.payload?.data)) {
+    //             const err: FetchBaseQueryError | undefined = action.payload?.data;
+    //             if (isErrorWithMessage(err)) {
+    //                 // you can access all properties of `FetchBaseQueryError` here
+    //                 // const errMsg: string = 'error' in err ? err.error : JSON.stringify(err.data)
+    //                 state.error = err?.message;
+    //                 console.error(state.error);
+    //             }
+    //         }
+    //     });
+    // },
 });
 
 export const holidayActions = holidaySlice.actions;

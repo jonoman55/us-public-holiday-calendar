@@ -8,7 +8,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
  * @returns Holiday Wiki Data
  */
 export const fetchWikiData = async (holiday: string): Promise<any> => {
-    const searchQuery: string = holiday.trim().toLowerCase();
+    const searchQuery: string = holiday?.trim()?.toLowerCase();
     if (searchQuery.length > 0) {
         const url: string = `https://en.wikipedia.org/w/api.php?action=query&list=search&prop=info&inprop=url&utf8=&format=json&origin=*&srlimit=20&srsearch=${searchQuery}`;
         const response: Response = await fetch(url);
@@ -19,8 +19,14 @@ export const fetchWikiData = async (holiday: string): Promise<any> => {
     }
 };
 
+/**
+ * Base API URL
+ */
 const baseUrl: string = `https://en.wikipedia.org/w/api.php`;
 
+/**
+ * Query Param Options
+ */
 const queryOptions: string = `action=query&list=search&prop=info&inprop=url&utf8=&format=json&origin=*&srlimit=20`;
 
 /**
@@ -35,8 +41,12 @@ export const wikiApi = createApi({
         getHolidayData: builder.query({
             query: (holiday) => ({
                 url: `?${queryOptions}&srsearch=${encodeURIComponent(holiday.trim().toLowerCase())}`,
-                responseHandler: async (res) => await res.json(),
+                responseHandler: async (res: Response) => await res.json(),
             }),
+            transformResponse: (response: Response) => {
+                console.log(response);
+                return response;
+            }
         }),
     }),
 });

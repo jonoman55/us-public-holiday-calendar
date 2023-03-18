@@ -14,7 +14,7 @@ export type ChildProps = {
 export type Lazy = React.LazyExoticComponent<() => JSX.Element>;
 
 /**
- * Holiday Type
+ * Holiday API Type
  */
 export type Holiday = {
   counties: string[] | null;
@@ -22,10 +22,11 @@ export type Holiday = {
   date: string | number | Date;
   fixed: boolean | null;
   global: boolean | null;
-  launchYear?: number | null;
+  launchYear?: number | null | undefined;
   localName: string | null;
   name: string | null;
   type: string | null;
+  day?: number | undefined;
 };
 
 /**
@@ -51,7 +52,7 @@ export type QueryParams = {
 };
 
 /**
- * Calendar Holiday Type
+ * Calendar API Holiday Type
  */
 export type CalendarHoliday = {
   name: string;
@@ -85,13 +86,11 @@ export interface PublicHoliday extends CalendarHoliday {
  * Calendar API Response Data
  */
 export type CalendarResponse = {
-  data: {
-    meta: {
-      code: number;
-    },
-    response: {
-      holidays: CalendarHoliday[];
-    }
+  meta: {
+    code: number;
+  },
+  response: {
+    holidays: CalendarHoliday[];
   }
 };
 
@@ -124,12 +123,12 @@ export type RequestParams = {
   year: string;
   type: Type;
   language: string;
-}
+};
 
 /**
- * Option Params Type
+ * Options Params Type
  */
-export type OptionParams = {
+export type OptionsParams = {
   year: string;
   country: string;
 };
@@ -151,3 +150,32 @@ export type CustomPalette = {
     orange: string;
   }
 };
+
+// export type CalendarApiHoliday = {
+//   name: string;
+//   description: string;
+//   country: Country;
+//   date: Date;
+//   type: string[];
+//   primary_type: string;
+//   canonical_url: string;
+//   urlid: string;
+//   locations: string;
+//   states: string;
+// };
+
+// export type Country ={
+//   id: string;
+//   name: string;
+// };
+
+// export type HolidayDate = {
+//   iso: string;
+//   datetime: Datetime;
+// };
+
+// export type Datetime = {
+//   year: number;
+//   month: number;
+//   day: number;
+// };

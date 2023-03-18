@@ -1,12 +1,11 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useMemo } from "react";
 import { Avatar, Card, CardActions, CardContent, CardHeader, IconButton, Link, Typography } from "@mui/material";
 import { Clear } from "@mui/icons-material";
-import { alpha, darken, lighten } from "@mui/material/styles";
+import { alpha, lighten } from "@mui/material/styles";
 import { FaWikipediaW } from "react-icons/fa";
 
 import { HolidayAvatar } from "./HolidayAvatar";
-import { createWikiUrl } from "../helpers";
+import { createWikiUrl, sanitizeName } from "../helpers";
 
 import type { PublicHoliday } from "../types";
 
@@ -19,27 +18,15 @@ interface HolidayCardProps {
 };
 
 /**
- * Sanitized Holiday Name
- * @param name Holiday Name
- * @returns Sanitized Holiday Name String
- */
-const sanitizeName = (name: string): string => {
-    if (name.includes('(')) {
-        return name.replace('(substitute)', '').trim();
-    }
-    return name;
-};
-
-/**
  * Holiday Card
  */
 const HolidayCard = ({ holiday, onClick }: HolidayCardProps) => {
     const holidayName = useMemo<string>(
-        () => sanitizeName(holiday.name),
+        () => sanitizeName(holiday?.name as string),
         [holiday]
     );
     const holidayDate = useMemo<string>(
-        () => new Date(holiday.date.iso).toLocaleDateString('en-US', {
+        () => new Date(holiday?.date?.iso).toLocaleDateString('en-US', {
             timeZone: 'UTC'
         }),
         [holiday]

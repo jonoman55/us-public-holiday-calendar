@@ -1,14 +1,20 @@
+// DOCS : https://calendarific.com/api-documentation
+
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
-import { getEvn } from '../helpers';
+import { createPublicHoliday, getEvn } from '../helpers';
 
-import type { QueryParams } from '../types';
+import type { CalendarHoliday, CalendarResponse, QueryParams } from '../types';
 
-const API_KEY: string = getEvn("REACT_APP_CALENDAR_API_KEY");
+/**
+ * Calendar API Key
+ */
+const CALENDAR_API_KEY: string = getEvn("REACT_APP_CALENDAR_API_KEY") as string;
 
+/**
+ * Base API URL
+ */
 const baseUrl: string = `https://calendarific.com/api/v2`;
-
-// DOCS : https://calendarific.com/api-documentation
 
 /**
  * Calendar API
@@ -21,9 +27,12 @@ export const calendarApi = createApi({
     endpoints: (builder) => ({
         getPublicHolidays: builder.query({
             query: ({ year, country }: QueryParams) => ({
-                url: `/holidays?api_key=${API_KEY}&country=${country}&year=${year}&type=national`,
-                responseHandler: async (res) => await res.json(),
+                url: `/holidays?api_key=${CALENDAR_API_KEY}&country=${country}&year=${year}&type=national`,
+                responseHandler: async (res: Response) => await res.json(),
             }),
+            transformResponse: ({ response }: CalendarResponse) => response.holidays.map(
+                (holiday: CalendarHoliday) => createPublicHoliday(holiday)
+            ),
         }),
     }),
 });
