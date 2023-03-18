@@ -1,5 +1,5 @@
 // TODO : Move createPublicHoliday & isPublicHoliday to helpers
-// TODO : Hook up to calendarApi and holidaySlice
+// TODO : Finish hooking up to holidayApi and holidaySlice to replace axios api and useState hooks
 // TODO : Add styled TextField in Calendar
 // TODO : Add custom ToolTip to buttons
 // TODO : Hook up wiki api to populate card data for each holiday
@@ -17,10 +17,10 @@ import moment from "moment";
 import HolidayCard from "./HolidayCard";
 import { fetchPublicHolidays } from "../apis/publicHolidayApi";
 
-// import { holidayApi } from "../api/holidayApi";
-// import { useAppDispatch } from "../app/hooks";
+import { holidayApi, useGetHolidaysQuery } from "../apis/holidayApi";
+import { useAppDispatch, useAppSelector } from "../app/hooks";
 
-import type { CalendarHoliday, CalendarResponse, PublicHoliday, SelectedDay } from "../types";
+import type { CalendarHoliday, CalendarResponse, Holiday, PublicHoliday, SelectedDay } from "../types";
 
 /**
  * Initial Holiday Values
@@ -96,12 +96,56 @@ const Calendar = () => {
     const requestAbortController = useRef<AbortController | null>(null);
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [value, setValue] = useState<Date | null>(initialValue);
+    const [value, setValue] = useState<Date>(initialValue);
     const [publicHolidays, setPublicHolidays] = useState<PublicHoliday[]>([]);
     const [holidays, setHolidays] = useState<number[]>([]);
     const [selectedHoliday, setSelectedHoliday] = useState<PublicHoliday>(initialHolidayValues);
 
-    const resetState = useCallback(() => {
+    // const {
+    //     status,
+    //     holidays: holidaysResults,
+    //     isLoading: holidaysIsLoading,
+    //     isError,
+    //     isSuccess,
+    //     error
+    // } = useAppSelector(
+    //     (state) => state.holidays
+    // );
+
+    // const {
+    //     data: holidaysResults,
+    //     isLoading: holidaysIsLoading,
+    //     refetch: holidaysRefetch
+    // } = useGetHolidaysQuery({
+    //     year: value.getFullYear().toString(),
+    //     country: "US"
+    // }, {
+    //     refetchOnMountOrArgChange: true,
+    //     refetchOnReconnect: true,
+    //     refetchOnFocus: true,
+    //     pollingInterval: 60 * 1000 * 10
+    // });
+
+    // const loading = useMemo<boolean>(
+    //     () => holidaysIsLoading,
+    //     [holidaysIsLoading]
+    // );
+
+    // const public_holidays = useMemo<Holiday[]>(() => {
+    //     const results: Holiday[] = [];
+    //     if (!loading && holidaysResults) {
+    //         holidaysResults?.map(
+    //             (holiday: Holiday) => results.push(holiday)
+    //         );
+    //     }   
+    //     return results;
+    // }, [loading, holidaysResults]);
+    
+    // const refetchData = useCallback<() => void>(() => {
+    //     holidaysRefetch();
+    // }, [holidaysRefetch]);
+
+    const resetState = useCallback<() => void>(() => {
         setValue(initialValue)
         setIsLoading(false);
         setHolidays([]);
@@ -114,7 +158,7 @@ const Calendar = () => {
         [resetState]
     );
 
-    // render selected day
+    /** render selected day */
     const renderSelectedPickerDay = ({ day, pickersDayProps }: SelectedDay) => {
         const isSelected = !pickersDayProps.outsideCurrentMonth && holidays?.find(
             (currHoliday) => currHoliday === day.getDate()
@@ -212,8 +256,8 @@ const Calendar = () => {
     }, [handleSelectedHoliday, value]);
 
     const handleChange = (newValue: Date | null) => {
-        setValue(newValue);
         if (newValue) {
+            setValue(newValue);
             handleSelectedHoliday(newValue);
         }
     };

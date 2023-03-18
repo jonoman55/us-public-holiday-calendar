@@ -11,9 +11,7 @@ const API_KEY: string = getEvn("REACT_APP_RAPID_API_KEY");
 
 const baseUrl: string = `https://${API_HOST}`;
 
-interface ResponsePayload {
-    data: Holiday[];
-};
+type ResponsePayload = Holiday[];
 
 // TODO : Implement this redux api instead of using axios (needs AbortSignal)
 // DOCS : https://redux-toolkit.js.org/api/createAsyncThunk#payloadcreator
@@ -52,13 +50,13 @@ export const holidayApi = createApi({
         },
     }),
     endpoints: (builder) => ({
-        getPublicHolidays: builder.query({
+        getHolidays: builder.query({
             query: ({ year, country = 'US' }: QueryParams) => ({
                 url: `/${year}/${country}`,
-                responseHandler: async (res) => await res.json(),
+                responseHandler: async (res: Response) => await res.json(),
             }),
-            transformResponse: ({ data }: ResponsePayload) => {
-                return data?.map(
+            transformResponse: (response: ResponsePayload) => {
+                return response?.map(
                     (holiday: Holiday) => createHoliday(holiday)
                 );
             },
@@ -67,5 +65,5 @@ export const holidayApi = createApi({
 });
 
 export const {
-    useGetPublicHolidaysQuery
+    useGetHolidaysQuery
 } = holidayApi;
