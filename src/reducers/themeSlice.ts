@@ -14,6 +14,9 @@ const name: Name = 'theme';
  * Toggle Theme Action Type
  */
 type ThemeActions = {
+    /**
+     * Toggle Theme Action
+     */
     toggleTheme: (state: ThemeState) => void;
 };
 
@@ -24,18 +27,22 @@ type ThemeSlice = Slice<ThemeState, ThemeActions, Name>;
 
 /**
  * Get System Preference Theme
+ * @returns true or false
  */
 const getSystemPreference = (): boolean => {
     return window?.matchMedia(
-        "(prefers-color-scheme: dark)"
+        '(prefers-color-scheme: dark)'
     ).matches;
 };
 
 /**
- * Get Active Theme Mode
+ * Get Active Theme Mode 
+ * 
+ * Gets the theme from the browsers localStorage or system preferences
+ * @returns true or false
  */
 const getActiveTheme = (): boolean => {
-    const theme = JSON.parse(localStorage.getItem('theme') ?? '{}');
+    const theme = JSON.parse(localStorage.getItem(name) ?? '{}');
     if (typeof theme === 'object') {
         return getSystemPreference();
     }
@@ -53,7 +60,7 @@ type ThemeState = {
 };
 
 /**
- * Is Dark Theme
+ * Dark Theme (Theme Mode)
  */
 const darkTheme: boolean = getActiveTheme();
 
@@ -61,7 +68,7 @@ const darkTheme: boolean = getActiveTheme();
  * Initial Theme State
  */
 const initialState: ThemeState = {
-    darkTheme 
+    darkTheme
 } as ThemeState;
 
 /**
@@ -74,7 +81,7 @@ const reducers: ThemeActions = {
     toggleTheme: (state: ThemeState) => {
         state.darkTheme = !state.darkTheme;
         localStorage.setItem(
-            'theme',
+            name,
             state.darkTheme.toString()
         );
     },
@@ -89,6 +96,15 @@ export const themeSlice: ThemeSlice = createSlice({
     reducers
 });
 
-const { actions, reducer } = themeSlice;
+/**
+ * Theme Slice Reducer and Actions 
+ */
+const { reducer, actions } = themeSlice;
+/**
+ * Theme Actions
+ */
 export const { toggleTheme } = actions;
+/**
+ * Theme Reducer
+ */
 export default reducer;
