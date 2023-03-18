@@ -134,6 +134,14 @@ export type OptionsParams = {
 };
 
 /**
+ * Options Params Type
+ */
+export type QueryOptions = {
+  date: Date;
+  country?: string;
+};
+
+/**
  * Selected Calendar Day
  */
 export type SelectedDay = {
@@ -150,32 +158,3 @@ export type CustomPalette = {
     orange: string;
   }
 };
-
-// export type CalendarApiHoliday = {
-//   name: string;
-//   description: string;
-//   country: Country;
-//   date: Date;
-//   type: string[];
-//   primary_type: string;
-//   canonical_url: string;
-//   urlid: string;
-//   locations: string;
-//   states: string;
-// };
-
-// export type Country ={
-//   id: string;
-//   name: string;
-// };
-
-// export type HolidayDate = {
-//   iso: string;
-//   datetime: Datetime;
-// };
-
-// export type Datetime = {
-//   year: number;
-//   month: number;
-//   day: number;
-// };

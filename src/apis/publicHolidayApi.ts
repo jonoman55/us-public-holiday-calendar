@@ -16,7 +16,7 @@ const createOptions = ({ year, country }: OptionsParams) => ({
     },
 });
 
-export const fetchHolidays = ({ date, signal }: FetchParams) => {
+export const fetchHolidays = ({ date, signal }: FetchParams): Promise<any> => {
     return new Promise<any>((resolve, reject) => {
         const requestOptions = createOptions({
             year: date.getFullYear().toString(),
@@ -35,7 +35,7 @@ const requestBuilder = ({ endpoint, country, year, type, language }: RequestPara
     return `https://calendarific.com/api/v2/${endpoint}?api_key=${CALENDAR_API_KEY}&country=${country}&year=${year}&type=${type}&language=${language}`;
 };
 
-export const fetchPublicHolidays = ({ date, signal }: FetchParams) => {
+export const fetchPublicHolidays = ({ date, signal }: FetchParams): Promise<any> => {
     const requestUrl: string = requestBuilder({
         endpoint: 'holidays',
         country: 'us',

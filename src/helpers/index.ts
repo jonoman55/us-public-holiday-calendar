@@ -1,6 +1,7 @@
 import moment from "moment";
+import type { FetchBaseQueryError } from "@reduxjs/toolkit/dist/query";
 
-import type { CalendarHoliday, Holiday, PublicHoliday, QueryParams } from "../types";
+import type { CalendarHoliday, Holiday, QueryOptions, PublicHoliday, QueryParams } from "../types";
 
 /**
  * Get Environment Variable
@@ -92,7 +93,30 @@ export const sanitizeName = (name: string): string => {
  * @param params Date and country 
  * @returns year and country
  */
-export const createQueryParams = ({ date, country }: { date: Date, country?: string; }): QueryParams => ({
+export const createQueryParams = ({ date, country }: QueryOptions): QueryParams => ({
   year: date.getFullYear().toString(),
   country: country ?? "US"
 });
+
+/**
+ * Type predicate to narrow an unknown error to `FetchBaseQueryError`
+ */
+export function isFetchBaseQueryError(
+  error: unknown
+): error is FetchBaseQueryError {
+  return typeof error === 'object' && error != null && 'status' in error
+};
+
+/**
+* Type predicate to narrow an unknown error to an object with a string 'message' property
+*/
+export function isErrorWithMessage(
+  error: unknown
+): error is { message: string } {
+  return (
+      typeof error === 'object' &&
+      error != null &&
+      'message' in error &&
+      typeof (error as any).message === 'string'
+  );
+};

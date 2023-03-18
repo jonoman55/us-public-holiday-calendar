@@ -1,7 +1,4 @@
-// TODO : Implement this redux api instead of using axios (needs AbortSignal)
-// DOCS : https://redux-toolkit.js.org/api/createAsyncThunk#payloadcreator
-// DOCS : https://redux-toolkit.js.org/rtk-query/usage/examples
-// EXAMPLES : https://github.com/reduxjs/redux-toolkit/tree/master/examples/query/react
+// NOTE : This API doesn't provide holiday description
 
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 

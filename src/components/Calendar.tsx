@@ -36,6 +36,7 @@ const Calendar = () => {
 
     const { holidays, selectedHoliday } = useAppSelector((state) => state.holidays);
 
+    /** query params for api call */
     const queryParams = useMemo<QueryParams>(
         () => createQueryParams({
             date: dateValue,
@@ -44,6 +45,7 @@ const Calendar = () => {
         [dateValue]
     );
 
+    // TODO : convert to useCallback function to accept new queryParams on year change
     const {
         data: holidaysResults,
         isLoading: holidaysIsLoading,
@@ -54,11 +56,16 @@ const Calendar = () => {
         // refetchOnFocus: true,
     });
 
+    /** Loading state */
     const isLoading = useMemo<boolean>(
         () => holidaysIsLoading,
         [holidaysIsLoading]
     );
 
+    /** 
+     * Current Public Holidays State
+     * TODO : To be removed
+     */
     const publicHolidays = useMemo<PublicHoliday[]>(() => {
         const results: PublicHoliday[] = [];
         if (!isLoading && holidaysResults) {
@@ -69,6 +76,7 @@ const Calendar = () => {
         return results;
     }, [isLoading, holidaysResults]);
 
+    /** Set Public Holidays */
     const handleSetPubicHolidays = useCallback(() => {
         if (!holidays?.length) {
             dispatch(holidayActions.setHolidays(publicHolidays));
@@ -80,10 +88,12 @@ const Calendar = () => {
         [handleSetPubicHolidays]
     );
 
+    /** Refetch data */
     const refetchData = useCallback<() => void>(() => {
         holidaysRefetch();
     }, [holidaysRefetch]);
 
+    /** Reset state and refetch data */
     const resetState = useCallback<() => void>(() => {
         setDateValue(initialValue);
         dispatch(holidayActions.setHolidays(null));
@@ -91,7 +101,7 @@ const Calendar = () => {
         refetchData();
     }, [dispatch, refetchData]);
 
-    /** fetch holidays for date range */
+    /** Fetch holidays for date range */
     const handleSelectedHoliday = useCallback(() => {
         if (dateValue) {
             dispatch(holidayActions.setSelectedHoliday(
@@ -109,19 +119,25 @@ const Calendar = () => {
         [handleSelectedHoliday]
     );
 
+    /** 
+     * Handle calendar change 
+     * TODO : Implement api call here instead of using the useQuery hook
+     */
     const handleCalendarChange = useCallback<() => void>(() => {
         refetchData();
     }, [refetchData]);
 
-    /** set holiday date */
+    /** Set holiday date */
     const handleChange = (newValue: Date | null) => {
         if (newValue) {
             setDateValue(newValue);
         }
     };
 
-    /** clear selected holiday */
-    const handleClick = () => resetState();
+    /** Clear Selected Holiday */
+    const handleClick = () => {
+        dispatch(holidayActions.setSelectedHoliday(null));
+    };
 
     /** Render Selected DatePicker Day */
     const renderSelectedPickerDay = ({ day, pickersDayProps }: SelectedDay) => {
