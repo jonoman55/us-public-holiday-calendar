@@ -1,7 +1,12 @@
-// TODO : Add types and create useActiveTheme hook
+import { type PaletteMode } from '@mui/material';
+import { PaletteColor, ThemeOptions, CSSObject } from "@mui/material/styles";
+import { TypographyOptions } from "@mui/material/styles/createTypography";
 
-import { ThemeOptions } from "@mui/material/styles";
+import type { CustomPalette } from "../types";
 
+/**
+ * MUI Styles Deceleration Override
+ */
 declare module '@mui/material/styles' {
   interface Theme {
     custom: {
@@ -20,7 +25,10 @@ declare module '@mui/material/styles' {
   }
 }
 
-const scrollBodyLight = {
+/**
+ * Light Mode Scrollbar Styles
+ */
+const scrollBodyLight: CSSObject  = {
   scrollbarColor: '#959595 #2b2b2b',
   '&::-webkit-scrollbar, & *::-webkit-scrollbar': {
     backgroundColor: '#2b2b2b',
@@ -45,7 +53,10 @@ const scrollBodyLight = {
   },
 };
 
-const scrollBodyDark = {
+/**
+ * Dark Mode Scrollbar Styles
+ */
+const scrollBodyDark: CSSObject = {
   scrollbarColor: '#6b6b6b #2b2b2b',
   '&::-webkit-scrollbar, & *::-webkit-scrollbar': {
     backgroundColor: '#2b2b2b',
@@ -70,63 +81,105 @@ const scrollBodyDark = {
   },
 };
 
-const light = {
+/**
+ * MUI Light Mode Palette Colors
+ */
+const light: PaletteColor = {
   main: '#f2f2f2',
   light: '#ffffff',
   dark: '#bfbfbf',
   contrastText: '#000000',
 };
 
-const dark = {
+/**
+ * MUI Dark Mode Palette Colors
+ */
+const dark: PaletteColor = {
   main: '#424242',
   light: '#6d6d6d',
   dark: '#1b1b1b',
   contrastText: '#ffffff',
 };
 
-const custom = {
+/**
+ * MUI Custom Palette Colors
+ */
+const custom: CustomPalette = {
   palette: {
     orange: '#e25f22'
   }
 };
 
-const typography = {
+/**
+ * MUI Typography Options
+ */
+const typography: TypographyOptions = {
   fontFamily: [
     'Roboto',
     'sans-serif',
   ].join(','),
 };
 
-export const lightTheme: ThemeOptions = {
-  palette: {
-    mode: 'light',
-    primary: light,
-    secondary: dark,
-  },
-  custom: custom,
-  typography: typography,
-  components: {
-    MuiCssBaseline: {
-      styleOverrides: {
-        body: scrollBodyLight,
-      },
-    },
-  },
-};
+// /**
+//  * MUI Light Theme Mode Options
+//  */
+// export const lightTheme: ThemeOptions = {
+//   palette: {
+//     mode: 'light',
+//     primary: light,
+//     secondary: dark,
+//   },
+//   custom: custom,
+//   typography: typography,
+//   components: {
+//     MuiCssBaseline: {
+//       styleOverrides: {
+//         body: scrollBodyLight,
+//       },
+//     },
+//   },
+// };
 
-export const darkTheme: ThemeOptions = {
+// /**
+//  * MUI Dark Theme Mode Options
+//  */
+// export const darkTheme: ThemeOptions = {
+//   palette: {
+//     mode: 'dark',
+//     primary: dark,
+//     secondary: light,
+//   },
+//   custom: custom,
+//   typography: typography,
+//   components: {
+//     MuiCssBaseline: {
+//       styleOverrides: {
+//         body: scrollBodyDark,
+//       },
+//     },
+//   },
+// };
+
+/**
+ * Create MUI Theme Palette
+ * @param mode PaletteMode
+ * @returns ThemeOptions
+ */
+export const createPaletteMode = (mode: PaletteMode): ThemeOptions => ({
   palette: {
-    mode: 'dark',
-    primary: dark,
-    secondary: light,
+    mode,
+    primary: mode === 'light' ? light : dark,
+    secondary: mode === 'light' ? dark : light,
   },
-  custom: custom,
-  typography: typography,
+  custom,
+  typography,
   components: {
     MuiCssBaseline: {
       styleOverrides: {
-        body: scrollBodyDark,
+        body: mode === 'light'
+          ? scrollBodyLight
+          : scrollBodyDark,
       },
     },
   },
-};
+});

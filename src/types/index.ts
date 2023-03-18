@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { PickersDayProps } from "@mui/x-date-pickers";
 
 /**
@@ -7,6 +7,11 @@ import { PickersDayProps } from "@mui/x-date-pickers";
 export type ChildProps = {
   children?: React.ReactNode;
 };
+
+/**
+ * React Lazy Load
+ */
+export type Lazy = React.LazyExoticComponent<() => JSX.Element>;
 
 /**
  * Holiday Type
@@ -136,4 +141,13 @@ export type SelectedDay = {
   day: Date,
   selectedDays: Date[],
   pickersDayProps: PickersDayProps<Date>;
+};
+
+/**
+ * Custom MUI Theme
+ */
+export type CustomPalette = {
+  palette: {
+    orange: string;
+  }
 };

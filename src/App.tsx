@@ -1,21 +1,21 @@
 // TODO : Publish to Netlify
 
-import { lazy, Suspense } from 'react';
+import React, { lazy, Suspense } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
-import { createTheme, CssBaseline, ThemeProvider } from '@mui/material';
+import { CssBaseline, Theme, ThemeProvider } from '@mui/material';
 
 import { SnackbarProvider } from './contexts/AlertContext';
 import { ErrorFallback, LoadingContainer } from './components/LazyLoad';
-import { useAppSelector } from './app/hooks';
-import { lightTheme, darkTheme } from './theme';
+import { useActiveTheme } from './hooks';
 
-const Routes = lazy(() => import('./routes'));
+const Routes: React.LazyExoticComponent<() => JSX.Element> = lazy(
+    () => import('./routes')
+);
 
-const App = () => {
-    const theme = useAppSelector((state) => state.theme);
-    const activeTheme = createTheme(theme.darkTheme ? darkTheme : lightTheme);
+const App: React.FC<{}> = (): JSX.Element => {
+    const theme: Theme = useActiveTheme();
     return (
-        <ThemeProvider theme={activeTheme}>
+        <ThemeProvider theme={theme}>
             <SnackbarProvider>
                 <CssBaseline />
                 <ErrorBoundary FallbackComponent={ErrorFallback} onReset={() => window.location.reload()}>

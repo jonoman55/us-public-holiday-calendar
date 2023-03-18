@@ -7,19 +7,16 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import './styles/index.css';
 
-const renderApp = () => {
-  const rootEl = document.getElementById('root') as HTMLElement;
-  const root = createRoot(rootEl);
-  root.render(
-    <React.StrictMode>
-      <Provider store={store}>
-        <App />
-      </Provider>
-    </React.StrictMode>
-  );
-};
+/** Root HTML Element */
+const root = createRoot(document.getElementById('root') as HTMLElement);
 
-renderApp();
+root.render(
+  <React.StrictMode>
+    <Provider store={store}>
+      <App />
+    </Provider>
+  </React.StrictMode>
+);
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))
