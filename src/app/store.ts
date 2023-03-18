@@ -1,12 +1,15 @@
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
+import { setupListeners } from '@reduxjs/toolkit/dist/query';
 
 import themeReducer from '../reducers/themeSlice';
 import holidayReducer from '../reducers/holidaySlice';
 import { holidayApi } from '../apis/holidayApi';
 import { calendarApi } from '../apis/calendarApi';
 import { wikiApi } from '../apis/wikiApi';
-import { setupListeners } from '@reduxjs/toolkit/dist/query';
 
+/**
+ * App Store
+ */
 export const store = configureStore({
     reducer: {
         theme: themeReducer,
