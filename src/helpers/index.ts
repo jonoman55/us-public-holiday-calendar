@@ -120,3 +120,21 @@ export function isErrorWithMessage(
       typeof (error as any).message === 'string'
   );
 };
+
+/**
+ * Remove HTML Tags from string
+ * @param str Input string
+ * @returns Sanitized string
+ */
+export const removeHtmlTags = (str: string): string => {
+  return str.replace(/(<([^>]+)>)/ig, '');
+};
+
+/**
+ * Remove special characters from string
+ * @param str Input string
+ * @returns Sanitized string
+ */
+export const removeSpecialCharacters = (str: string) => {
+  return str.replace(/[^a-zA-Z0-9 ]/, '');
+};

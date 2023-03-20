@@ -1,4 +1,4 @@
-// TODO : Convert useGetPublicHolidaysQuery into a useCallback function to accept year changes
+// TODO : Fix isSelected to populate calendar holidays
 // TODO : Add styled TextField in Calendar
 // TODO : Add custom ToolTip to buttons
 // TODO : Hook up wiki api to populate card data for each holiday
@@ -14,17 +14,18 @@ import { alpha, lighten } from "@mui/material/styles";
 import moment from "moment";
 
 import HolidayCard from "./HolidayCard";
-import { holidayActions } from "../reducers/holidaySlice";
-import { useGetPublicHolidaysQuery } from "../apis/calendarApi";
+import { holidayActions, isPublicHolidayType } from "../reducers/holidaySlice";
+import { holidayApi, useGetHolidaysQuery } from "../apis/holidayApi";
+import { calendarApi, useGetPublicHolidaysQuery } from "../apis/calendarApi";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { createQueryParams } from "../helpers";
 
-import type { PublicHoliday, SelectedDay, QueryParams } from "../types";
+import type { PublicHoliday, SelectedDay, QueryParams, Holiday } from "../types";
 
 /**
  * Initial Date Value
  */
-const initialValue: Date = new Date();
+// const initialValue: Date = new Date();
 
 /**
  * Calendar
@@ -32,105 +33,88 @@ const initialValue: Date = new Date();
 const Calendar = () => {
     const dispatch = useAppDispatch();
 
-    const [dateValue, setDateValue] = useState<Date>(initialValue);
+    const {
+        isLoading,
+        currentDate,
+        holidays,
+        publicHolidays,
+        selectedHoliday
+    } = useAppSelector((state) => state.holidays);
 
-    const { holidays, selectedHoliday } = useAppSelector((state) => state.holidays);
+    // console.log('holidays: ', holidays);
+    // console.log('publicHolidays: ', publicHolidays);
 
     /** query params for api call */
     const queryParams = useMemo<QueryParams>(
         () => createQueryParams({
-            date: dateValue,
+            date: currentDate,
             country: "US"
         }),
-        [dateValue]
+        [currentDate]
     );
 
-    // TODO : convert to useCallback function to accept new queryParams on year change
-    const {
-        data: holidaysResults,
-        isLoading: holidaysIsLoading,
-        refetch: holidaysRefetch
-    } = useGetPublicHolidaysQuery(queryParams, {
-        // refetchOnMountOrArgChange: true,
-        // refetchOnReconnect: true,
-        // refetchOnFocus: true,
-    });
+    const fetchPublicHolidays = useCallback<() => void>(() => {
+        dispatch(holidayActions.setIsLoading(true));
+        dispatch(calendarApi.endpoints.getPublicHolidays.initiate(queryParams)).then(
+            (response) => {
+                if (!response.isLoading && response.isSuccess) {
+                    if (response?.data) dispatch(holidayActions.setPublicHolidays(response.data));
+                }
+            }
+        ).catch((error) => {
+            console.error(error);
+        }).finally(() => {
+            dispatch(holidayActions.setIsLoading(false));
+        });
+    }, [dispatch, queryParams]);
 
-    /** Loading state */
-    const isLoading = useMemo<boolean>(
-        () => holidaysIsLoading,
-        [holidaysIsLoading]
-    );
-
-    /** 
-     * Current Public Holidays State
-     * TODO : To be removed
-     */
-    const publicHolidays = useMemo<PublicHoliday[]>(() => {
-        const results: PublicHoliday[] = [];
-        if (!isLoading && holidaysResults) {
-            holidaysResults.map(
-                (ph: PublicHoliday) => results.push(ph)
-            );
-        }
-        return results;
-    }, [isLoading, holidaysResults]);
-
-    /** Set Public Holidays */
-    const handleSetPubicHolidays = useCallback(() => {
-        if (!holidays?.length) {
-            dispatch(holidayActions.setHolidays(publicHolidays));
-        }
-    }, [dispatch, holidays, publicHolidays]);
-
-    useEffect(
-        () => handleSetPubicHolidays(),
-        [handleSetPubicHolidays]
-    );
-
-    /** Refetch data */
-    const refetchData = useCallback<() => void>(() => {
-        holidaysRefetch();
-    }, [holidaysRefetch]);
-
-    /** Reset state and refetch data */
-    const resetState = useCallback<() => void>(() => {
-        setDateValue(initialValue);
-        dispatch(holidayActions.setHolidays(null));
-        dispatch(holidayActions.setSelectedHoliday(null));
-        refetchData();
-    }, [dispatch, refetchData]);
+    const fetchHolidays = useCallback<() => void>(() => {
+        dispatch(holidayActions.setIsLoading(true));
+        dispatch(holidayApi.endpoints.getHolidays.initiate(queryParams)).then(
+            (response) => {
+                if (!response.isLoading && response.isSuccess) {
+                    if (response?.data) dispatch(holidayActions.setHolidays(response.data));
+                }
+            }
+        ).catch((error) => {
+            console.error(error);
+        }).finally(() => {
+            dispatch(holidayActions.setIsLoading(false));
+        });
+    }, [dispatch, queryParams]);
 
     /** Fetch holidays for date range */
-    const handleSelectedHoliday = useCallback(() => {
-        if (dateValue) {
-            dispatch(holidayActions.setSelectedHoliday(
-                publicHolidays?.filter(
-                    (holiday: PublicHoliday) =>
-                        holiday.date.iso === moment(dateValue).format("YYYY-MM-DD") &&
-                        holiday.type.find((t) => t === 'National holiday')
-                ).shift() as PublicHoliday)
-            );
+    const handleSelectedHoliday = useCallback<(date: Date) => void>((date: Date) => {
+        if (publicHolidays) {
+            const publicHoliday: PublicHoliday = publicHolidays?.filter(
+                (holiday: PublicHoliday) =>
+                    holiday.date.iso === moment(date).format("YYYY-MM-DD") &&
+                    holiday.type.find(
+                        (t: string) => t === 'National holiday'
+                    )
+            ).shift() as PublicHoliday;
+            dispatch(holidayActions.setSelectedHoliday(publicHoliday));
         }
-    }, [dispatch, publicHolidays, dateValue]);
+        if (holidays) {
+            const holiday: Holiday = holidays?.filter(
+                (holiday: Holiday) =>
+                    holiday.date === moment(date).format("YYYY-MM-DD") &&
+                    holiday?.type?.toLowerCase().includes('public')
+            ).shift() as Holiday;
+            dispatch(holidayActions.setSelectedHoliday(holiday));
+        }
+    }, [dispatch, publicHolidays, holidays]);
 
-    useEffect(
-        () => handleSelectedHoliday(),
-        [handleSelectedHoliday]
-    );
-
-    /** 
-     * Handle calendar change 
-     * TODO : Implement api call here instead of using the useQuery hook
-     */
     const handleCalendarChange = useCallback<() => void>(() => {
-        refetchData();
-    }, [refetchData]);
+        fetchPublicHolidays();
+        fetchHolidays();
+    }, [fetchPublicHolidays, fetchHolidays]);
 
     /** Set holiday date */
     const handleChange = (newValue: Date | null) => {
         if (newValue) {
-            setDateValue(newValue);
+            dispatch(holidayActions.setCurrentDate(newValue));
+            handleSelectedHoliday(newValue);
         }
     };
 
@@ -139,11 +123,29 @@ const Calendar = () => {
         dispatch(holidayActions.setSelectedHoliday(null));
     };
 
+    const handleIsSelected = useCallback<({ day, pickersDayProps }: SelectedDay) => false | Holiday | PublicHoliday | undefined>(
+        ({ day, pickersDayProps }: SelectedDay) => {
+            if (publicHolidays) {
+                return !pickersDayProps.outsideCurrentMonth && publicHolidays?.find(
+                    (currHoliday: PublicHoliday) => currHoliday.date.iso === moment(day).format("YYYY-MM-DD")
+                );
+            }
+            if (holidays) {
+                return !pickersDayProps.outsideCurrentMonth && holidays?.find(
+                    (currHoliday: Holiday) => moment(currHoliday.date).format("YYYY-MM-DD") === moment(day).format("YYYY-MM-DD")
+                );
+            }
+        },
+        [publicHolidays, holidays]
+    );
+
     /** Render Selected DatePicker Day */
-    const renderSelectedPickerDay = ({ day, pickersDayProps }: SelectedDay) => {
-        const isSelected = !pickersDayProps.outsideCurrentMonth && holidays?.find(
-            (currHoliday: PublicHoliday) => currHoliday.date.iso === moment(day).format("YYYY-MM-DD")
-        );
+    const renderSelectedPickerDay = ({ day, selectedDays, pickersDayProps }: SelectedDay) => {
+        const isSelected = handleIsSelected({
+            day,
+            selectedDays,
+            pickersDayProps
+        });
         return (
             <Badge
                 key={day.toString()}
@@ -163,6 +165,8 @@ const Calendar = () => {
             pickersDayProps
         })
     );
+
+    // console.log('selectedHoliday: ', selectedHoliday);
 
     return (
         <Stack direction='column' spacing={2}>
@@ -193,7 +197,7 @@ const Calendar = () => {
                 <LocalizationProvider dateAdapter={AdapterDateFns}>
                     <StaticDatePicker
                         showToolbar
-                        value={dateValue}
+                        value={currentDate}
                         loading={isLoading}
                         onChange={handleChange}
                         onYearChange={handleCalendarChange}

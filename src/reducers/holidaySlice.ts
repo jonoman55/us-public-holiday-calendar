@@ -1,26 +1,50 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-import type { PublicHoliday } from '../types';
+import type { PublicHoliday, Holiday } from '../types';
+
+/**
+ * Check if type is of PublicHoliday
+ * @param holiday PublicHoliday or Holiday
+ * @returns true or false
+ */
+export function isPublicHolidayType(holiday: PublicHoliday | Holiday): holiday is PublicHoliday {
+    return (holiday as PublicHoliday).date?.iso !== undefined;
+};
 
 /**
  * Holiday State
  */
 type HolidayState = {
     /**
-     * Public Holidays
+     * Loading State
      */
-    holidays: PublicHoliday[] | null;
+    isLoading: boolean;
+    /**
+     * Currently Selected Date
+     */
+    currentDate: Date;
+    /**
+     * Public Holidays from Holiday API
+     */
+    holidays: Holiday[] | null;
+    /**
+     * Public Holidays from Calendar API
+     */
+    publicHolidays: PublicHoliday[] | null;
     /**
      * Selected Public Holiday
      */
-    selectedHoliday: PublicHoliday | null;
+    selectedHoliday: PublicHoliday | Holiday | null;
 };
 
 /** 
  * Initial Holiday State
  */
 const initialState: HolidayState = {
+    isLoading: false,
+    currentDate: new Date(),
     holidays: [],
+    publicHolidays: [],
     selectedHoliday: null,
 } as HolidayState;
 
@@ -41,16 +65,34 @@ export const holidaySlice = createSlice({
             };
         },
         /**
-         * Set Public Holidays 
+         * Set Public Holidays from Calendar API 
          */
-        setHolidays: (state: HolidayState, action: PayloadAction<PublicHoliday[] | null>) => {
+        setPublicHolidays: (state: HolidayState, action: PayloadAction<PublicHoliday[] | null>) => {
+            state.publicHolidays = action.payload;
+        },
+        /**
+         * Set Public Holidays from Holiday API
+         */
+        setHolidays: (state: HolidayState, action: PayloadAction<Holiday [] | null>) => {
             state.holidays = action.payload;
         },
         /**
          * Set Selected Public Holiday
          */
-        setSelectedHoliday: (state: HolidayState, action: PayloadAction<PublicHoliday | null>) => {
+        setSelectedHoliday: (state: HolidayState, action: PayloadAction<PublicHoliday| Holiday | null>) => {
             state.selectedHoliday = action.payload;
+        },
+        /**
+         * Set Current Date
+         */
+        setCurrentDate: (state: HolidayState, action: PayloadAction<Date>) => {
+            state.currentDate = action.payload;
+        },
+        /**
+         * Set Loading State
+         */
+        setIsLoading: (state: HolidayState, action: PayloadAction<boolean>) => {
+            state.isLoading = action.payload;
         },
     },
 });

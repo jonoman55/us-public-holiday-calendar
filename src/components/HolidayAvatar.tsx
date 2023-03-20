@@ -26,6 +26,8 @@ export const HolidayAvatar = ({ name }: { name: string; }) => {
             return <GiFist style={style} />;
         case "Presidents' Day":
             return <FaFlagUsa style={style} />;
+        case "Presidents Day":
+            return <FaFlagUsa style={style} />;
         case "Good Friday":
             return <FaCross style={style} />;
         case "Memorial Day":
